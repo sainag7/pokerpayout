@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-felt-dark: #0D1F0D;
+  --color-felt-black: #0A0A0A;
+  --color-surface: #1A2E1A;
+  --color-surface-light: #243524;
+  --color-gold: #D4A843;
+  --color-gold-dark: #B8860B;
+  --color-text-primary: #F5F0E8;
+  --color-text-secondary: #A8997A;
+  --color-win: #22C55E;
+  --color-loss: #DC2626;
+  --color-warning: #EAB308;
+
+  --font-heading: 'Righteous', cursive;
+  --font-body: 'Poppins', sans-serif;
+
+  --animate-fade-in: fade-in 200ms ease-out;
+  --animate-slide-up: slide-up 250ms ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-felt-dark);
+  color: var(--color-text-primary);
+  min-height: 100dvh;
+  margin: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(26, 46, 26, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 50%, rgba(26, 46, 26, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, rgba(212, 168, 67, 0.03) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+.gold-glow {
+  box-shadow: 0 0 15px rgba(212, 168, 67, 0.25), 0 0 30px rgba(212, 168, 67, 0.08);
+}
+
+.gold-glow-sm {
+  box-shadow: 0 0 8px rgba(212, 168, 67, 0.2);
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
