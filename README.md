@@ -2,7 +2,7 @@
 
 A calculator for settling up after home poker games. Enter each player's buy-ins and final chip counts, and the app figures out exactly who owes what — with all payments routed through a single banker via Zelle.
 
-**Live site:** ([https://YOUR-SITE-NAME.netlify.app](https://poker-payout.netlify.app/))
+**Live site:** ([(https://poker-payout.netlify.app/)](https://poker-payout.netlify.app/))
 
 ## How It Works
 
