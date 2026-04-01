@@ -84,36 +84,36 @@ export function PlayPhase({ state, dispatch, onNext, onBack }: PlayPhaseProps) {
           <PlayerCard key={player.id} player={player} index={i}>
             <div className="flex flex-wrap gap-2">
               {rebuyPlayerId === player.id ? (
-                <div className="flex gap-2 items-end w-full">
-                  <div className="flex-1">
-                    <MoneyInput
-                      value={rebuyAmount}
-                      onChange={(v) => {
-                        setRebuyAmount(v);
-                        setRebuyError(null);
-                      }}
-                      error={rebuyError}
-                      placeholder="Rebuy amount"
-                      autoFocus
-                    />
-                  </div>
-                  <GoldButton
-                    onClick={() => handleRebuy(player.id)}
-                    className="text-sm px-4 py-2.5"
-                  >
-                    Add
-                  </GoldButton>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRebuyPlayerId(null);
-                      setRebuyAmount('');
+                <div className="flex flex-col gap-2 w-full">
+                  <MoneyInput
+                    value={rebuyAmount}
+                    onChange={(v) => {
+                      setRebuyAmount(v);
                       setRebuyError(null);
                     }}
-                    className="text-text-secondary/60 hover:text-text-secondary text-sm px-2 py-2.5 cursor-pointer"
-                  >
-                    Cancel
-                  </button>
+                    error={rebuyError}
+                    placeholder="Rebuy amount"
+                    autoFocus
+                  />
+                  <div className="flex gap-2 justify-center">
+                    <GoldButton
+                      onClick={() => handleRebuy(player.id)}
+                      className="text-sm px-4 py-2.5"
+                    >
+                      Add
+                    </GoldButton>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRebuyPlayerId(null);
+                        setRebuyAmount('');
+                        setRebuyError(null);
+                      }}
+                      className="text-text-secondary/60 hover:text-text-secondary text-sm px-2 py-2.5 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>

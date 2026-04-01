@@ -20,6 +20,9 @@ export function GameSetup({ state, dispatch, onNext }: GameSetupProps) {
   const [nameError, setNameError] = useState<string | null>(null);
   const [buyInError, setBuyInError] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
+  const [editBuyInPlayerId, setEditBuyInPlayerId] = useState<string | null>(null);
+  const [editBuyInAmount, setEditBuyInAmount] = useState('');
+  const [editBuyInError, setEditBuyInError] = useState<string | null>(null);
 
   const handleAdd = () => {
     const existingNames = state.players.map((p) => p.name);
@@ -39,6 +42,15 @@ export function GameSetup({ state, dispatch, onNext }: GameSetupProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAdd();
+  };
+
+  const handleEditBuyIn = (playerId: string) => {
+    const err = validateBuyIn(editBuyInAmount);
+    setEditBuyInError(err);
+    if (err) return;
+    dispatch({ type: 'EDIT_BUYIN', payload: { id: playerId, amount: parseFloat(editBuyInAmount) } });
+    setEditBuyInPlayerId(null);
+    setEditBuyInAmount('');
   };
 
   const hasBanker = state.players.some((p) => p.isBanker);
@@ -102,28 +114,63 @@ export function GameSetup({ state, dispatch, onNext }: GameSetupProps) {
           </h3>
           {state.players.map((player, i) => (
             <PlayerCard key={player.id} player={player} index={i}>
-              <div className="flex gap-2">
-                {!player.isBanker && (
+              {editBuyInPlayerId === player.id ? (
+                <div className="flex flex-col gap-2 w-full">
+                  <MoneyInput
+                    value={editBuyInAmount}
+                    onChange={(v) => { setEditBuyInAmount(v); setEditBuyInError(null); }}
+                    error={editBuyInError}
+                    placeholder="New buy-in amount"
+                    autoFocus
+                  />
+                  <div className="flex gap-2 justify-center">
+                    <GoldButton
+                      onClick={() => handleEditBuyIn(player.id)}
+                      className="text-sm px-4 py-2.5"
+                    >
+                      Save
+                    </GoldButton>
+                    <button
+                      type="button"
+                      onClick={() => { setEditBuyInPlayerId(null); setEditBuyInAmount(''); setEditBuyInError(null); }}
+                      className="text-text-secondary/60 hover:text-text-secondary text-sm px-2 py-2.5 cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      dispatch({ type: 'SET_BANKER', payload: { id: player.id } })
-                    }
+                    onClick={() => { setEditBuyInPlayerId(player.id); setEditBuyInAmount(String(player.buyIns[0])); setEditBuyInError(null); }}
                     className="text-xs text-gold/70 hover:text-gold border border-gold/20
                       hover:border-gold/40 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
                   >
-                    Set as Banker
+                    Edit Buy-in
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setRemoveTarget(player.id)}
-                  className="text-xs text-loss/70 hover:text-loss border border-loss/20
-                    hover:border-loss/40 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
-                >
-                  Remove
-                </button>
-              </div>
+                  {!player.isBanker && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        dispatch({ type: 'SET_BANKER', payload: { id: player.id } })
+                      }
+                      className="text-xs text-win/70 hover:text-win border border-win/20
+                        hover:border-win/40 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+                    >
+                      Set as Banker
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setRemoveTarget(player.id)}
+                    className="text-xs text-loss/70 hover:text-loss border border-loss/20
+                      hover:border-loss/40 rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </PlayerCard>
           ))}
         </div>
