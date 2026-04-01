@@ -43,6 +43,45 @@ export function getZelleTransactions(players: Player[]): ZelleTransaction[] {
     }));
 }
 
+export function getSimplifiedTransactions(players: Player[]): ZelleTransaction[] {
+  const results = getPlayerResults(players);
+
+  // Work in cents to avoid floating-point drift
+  const creditors = results
+    .filter((r) => r.net > 0.005)
+    .map((r) => ({ name: r.name, balance: Math.round(r.net * 100) }))
+    .sort((a, b) => b.balance - a.balance);
+
+  const debtors = results
+    .filter((r) => r.net < -0.005)
+    .map((r) => ({ name: r.name, balance: Math.round(r.net * 100) }))
+    .sort((a, b) => a.balance - b.balance);
+
+  const transactions: ZelleTransaction[] = [];
+  let ci = 0;
+  let di = 0;
+
+  while (ci < creditors.length && di < debtors.length) {
+    const creditor = creditors[ci];
+    const debtor = debtors[di];
+    const amount = Math.min(creditor.balance, -debtor.balance);
+
+    transactions.push({
+      from: debtor.name,
+      to: creditor.name,
+      amount: Math.round(amount) / 100,
+    });
+
+    creditor.balance -= amount;
+    debtor.balance += amount;
+
+    if (creditor.balance === 0) ci++;
+    if (debtor.balance === 0) di++;
+  }
+
+  return transactions;
+}
+
 export function formatMoney(amount: number): string {
   return `$${Math.abs(amount).toFixed(2)}`;
 }

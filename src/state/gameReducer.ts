@@ -2,6 +2,7 @@ import type { GameState, Player } from '../types/game';
 import { initialState } from './initialState';
 
 export type GameAction =
+  | { type: 'SET_MODE'; payload: { mode: 'banker' | 'simplified' } }
   | { type: 'ADD_PLAYER'; payload: { name: string; buyIn: number } }
   | { type: 'REMOVE_PLAYER'; payload: { id: string } }
   | { type: 'SET_BANKER'; payload: { id: string } }
@@ -15,6 +16,10 @@ export type GameAction =
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
+    case 'SET_MODE': {
+      return { ...state, mode: action.payload.mode };
+    }
+
     case 'ADD_PLAYER': {
       const newPlayer: Player = {
         id: crypto.randomUUID(),

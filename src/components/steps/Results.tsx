@@ -4,6 +4,7 @@ import type { GameAction } from '../../state/gameReducer';
 import {
   getPlayerResults,
   getZelleTransactions,
+  getSimplifiedTransactions,
   isBalanced,
   formatMoneyWithSign,
   getPotTotal,
@@ -27,20 +28,37 @@ const RANK_STYLES = [
   'border-gold/15',
 ];
 
-export function Results({ state, onBack, onNewGame }: ResultsProps) {
+export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
 
+  const isSimplified = state.mode === 'simplified';
   const results = getPlayerResults(state.players);
-  const transactions = getZelleTransactions(state.players);
+  const transactions = isSimplified
+    ? getSimplifiedTransactions(state.players)
+    : getZelleTransactions(state.players);
   const balanced = isBalanced(state.players);
-  const banker = results.find((r) => r.isBanker);
+  const banker = isSimplified ? null : results.find((r) => r.isBanker);
 
   const handleCopy = async (text: string, idx: number) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedIdx(idx);
       setTimeout(() => setCopiedIdx(null), 2000);
+    } catch {
+      // Clipboard not available
+    }
+  };
+
+  const handleCopyAll = async () => {
+    const text = transactions
+      .map((tx) => `${tx.from} pays $${tx.amount.toFixed(2)} to ${tx.to}`)
+      .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
     } catch {
       // Clipboard not available
     }
@@ -57,9 +75,31 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
         Results
         <span className="text-xl" aria-hidden="true">{'\u2666'}</span>
       </h2>
-      <p className="text-sm text-text-secondary mb-5">
+      <p className="text-sm text-text-secondary mb-4">
         Game summary and payouts
       </p>
+
+      {/* Mode toggle */}
+      <div className="flex rounded-xl bg-surface border border-gold/15 p-1 gap-1 mb-5">
+        {(['banker', 'simplified'] as const).map((mode) => {
+          const isSelected = state.mode === mode;
+          const label = mode === 'banker' ? 'Banker Mode' : 'Simplified Payments';
+          return (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => dispatch({ type: 'SET_MODE', payload: { mode } })}
+              className={`flex-1 rounded-lg py-2 text-xs font-semibold transition-all duration-150 cursor-pointer
+                ${isSelected
+                  ? mode === 'banker' ? 'bg-gold text-felt-black' : 'bg-win text-felt-black'
+                  : 'text-text-secondary hover:text-text-primary'
+                }`}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
 
       {!balanced && (
         <div className="mb-5">
@@ -69,11 +109,36 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
         </div>
       )}
 
-      {/* Zelle Transactions */}
+      {/* Transactions */}
       <div className="mb-6">
-        <h3 className="text-sm text-text-secondary font-medium uppercase tracking-wider mb-3">
-          Zelle Payments
-        </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm text-text-secondary font-medium uppercase tracking-wider">
+            {isSimplified ? 'Settlement Payments' : 'Zelle Payments'}
+          </h3>
+          {transactions.length > 0 && (
+            <button
+              type="button"
+              onClick={handleCopyAll}
+              className="flex items-center gap-1.5 text-xs text-text-secondary/60 hover:text-text-secondary cursor-pointer transition-colors"
+            >
+              {copiedAll ? (
+                <>
+                  <svg className="w-3.5 h-3.5 text-win" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-win">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copy All
+                </>
+              )}
+            </button>
+          )}
+        </div>
         {transactions.length > 0 ? (
           <div className="space-y-2">
             {transactions.map((tx, i) => (
@@ -83,17 +148,17 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
               >
                 <div className="flex-1">
                   <p className="text-text-primary text-sm">
-                    <span className="font-semibold text-gold">{tx.from}</span>
-                    {' sends '}
+                    <span className="font-semibold text-loss">{tx.from}</span>
+                    {' pays '}
                     <span className="font-semibold text-win">${tx.amount.toFixed(2)}</span>
                     {' to '}
-                    <span className="font-semibold">{tx.to}</span>
+                    <span className="font-semibold text-gold">{tx.to}</span>
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() =>
-                    handleCopy(`${tx.from} sends $${tx.amount.toFixed(2)} to ${tx.to}`, i)
+                    handleCopy(`${tx.from} pays $${tx.amount.toFixed(2)} to ${tx.to}`, i)
                   }
                   className="text-text-secondary/50 hover:text-text-secondary ml-3 p-1 cursor-pointer"
                   aria-label="Copy transaction"
@@ -114,8 +179,8 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
         ) : (
           <div className="bg-surface rounded-xl border border-gold/15 p-4 text-center">
             <p className="text-text-secondary text-sm">
-              No Zelle payments needed
-              {banker && banker.net >= 0 && (
+              No payments needed — everyone is even
+              {!isSimplified && banker && banker.net >= 0 && (
                 <span className="block mt-1 text-win font-medium">
                   {banker.name} profits {formatMoneyWithSign(banker.net)}
                 </span>
@@ -124,8 +189,8 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
           </div>
         )}
 
-        {/* Banker summary */}
-        {banker && transactions.length > 0 && (
+        {/* Banker summary (banker mode only) */}
+        {!isSimplified && banker && transactions.length > 0 && (
           <div className="mt-3 bg-surface/60 rounded-lg border border-gold/10 p-3">
             <p className="text-sm text-text-secondary">
               <span className="font-medium text-gold">{banker.name}</span>
@@ -137,6 +202,16 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
               >
                 {formatMoneyWithSign(banker.net)}
               </span>
+            </p>
+          </div>
+        )}
+
+        {/* Transaction count callout (simplified mode only) */}
+        {isSimplified && transactions.length > 0 && (
+          <div className="mt-3 bg-surface/60 rounded-lg border border-win/10 p-3">
+            <p className="text-sm text-text-secondary">
+              <span className="font-medium text-win">{transactions.length}</span>
+              {` payment${transactions.length === 1 ? '' : 's'} needed to settle all debts`}
             </p>
           </div>
         )}
@@ -167,7 +242,7 @@ export function Results({ state, onBack, onNewGame }: ResultsProps) {
                   <span className="font-semibold text-text-primary truncate">
                     {result.name}
                   </span>
-                  {result.isBanker && (
+                  {!isSimplified && result.isBanker && (
                     <span className="bg-gold text-felt-black text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">
                       Banker
                     </span>
