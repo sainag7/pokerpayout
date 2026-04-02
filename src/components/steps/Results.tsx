@@ -20,6 +20,7 @@ interface ResultsProps {
   dispatch: React.Dispatch<GameAction>;
   onBack: () => void;
   onNewGame: () => void;
+  onReset: () => void;
 }
 
 const RANK_STYLES = [
@@ -28,7 +29,7 @@ const RANK_STYLES = [
   'border-gold/15',
 ];
 
-export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
+export function Results({ state, dispatch, onBack, onNewGame, onReset: _onReset }: ResultsProps) {
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
@@ -80,7 +81,7 @@ export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
       </p>
 
       {/* Mode toggle */}
-      <div className="flex rounded-xl bg-surface border border-gold/15 p-1 gap-1 mb-5">
+      <div className="flex rounded-xl bg-surface border border-gold/15 p-1 gap-1 mb-2">
         {(['banker', 'simplified'] as const).map((mode) => {
           const isSelected = state.mode === mode;
           const label = mode === 'banker' ? 'Banker Mode' : 'Simplified Payments';
@@ -100,6 +101,13 @@ export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
           );
         })}
       </div>
+      <p className="text-xs text-text-secondary/60 px-1 mb-5">
+        {state.mode === 'banker'
+          ? 'One player collects all chips and pays out winners.'
+          : state.mode === 'simplified'
+          ? 'Fewest possible peer-to-peer payments to settle all debts.'
+          : 'Choose a mode to see how to settle up.'}
+      </p>
 
       {!balanced && (
         <div className="mb-5">
@@ -110,6 +118,11 @@ export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
       )}
 
       {/* Transactions */}
+      {state.mode === null ? (
+        <div className="bg-surface rounded-xl border border-gold/15 p-6 text-center mb-6">
+          <p className="text-text-secondary text-sm">Select a payment mode above to see transactions</p>
+        </div>
+      ) : (
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm text-text-secondary font-medium uppercase tracking-wider">
@@ -216,6 +229,7 @@ export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
           </div>
         )}
       </div>
+      )}
 
       {/* Leaderboard */}
       <div className="mb-6">
@@ -246,6 +260,15 @@ export function Results({ state, dispatch, onBack, onNewGame }: ResultsProps) {
                     <span className="bg-gold text-felt-black text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase shrink-0">
                       Banker
                     </span>
+                  )}
+                  {!isSimplified && !result.isBanker && (
+                    <button
+                      type="button"
+                      onClick={() => dispatch({ type: 'SET_BANKER', payload: { id: result.id } })}
+                      className="text-[10px] text-gold/50 hover:text-gold border border-gold/15 hover:border-gold/40 rounded-full px-2 py-0.5 transition-colors cursor-pointer shrink-0"
+                    >
+                      Set Banker
+                    </button>
                   )}
                 </div>
                 <p className="text-xs text-text-secondary">

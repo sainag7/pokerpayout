@@ -14,9 +14,10 @@ interface PlayPhaseProps {
   dispatch: React.Dispatch<GameAction>;
   onNext: () => void;
   onBack: () => void;
+  onReset: () => void;
 }
 
-export function PlayPhase({ state, dispatch, onNext, onBack }: PlayPhaseProps) {
+export function PlayPhase({ state, dispatch, onNext, onBack, onReset }: PlayPhaseProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [name, setName] = useState('');
   const [buyIn, setBuyIn] = useState('');
@@ -215,6 +216,7 @@ export function PlayPhase({ state, dispatch, onNext, onBack }: PlayPhaseProps) {
         onNext={onNext}
         nextLabel="Cashout"
         nextDisabled={state.players.length < 2}
+        onReset={onReset}
       />
 
       <ConfirmDialog

@@ -15,9 +15,10 @@ interface CashoutProps {
   dispatch: React.Dispatch<GameAction>;
   onNext: () => void;
   onBack: () => void;
+  onReset: () => void;
 }
 
-export function Cashout({ state, dispatch, onNext, onBack }: CashoutProps) {
+export function Cashout({ state, dispatch, onNext, onBack, onReset }: CashoutProps) {
   const [cashoutValues, setCashoutValues] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     state.players.forEach((p) => {
@@ -147,6 +148,7 @@ export function Cashout({ state, dispatch, onNext, onBack }: CashoutProps) {
         onNext={handleNext}
         nextLabel="See Results"
         nextDisabled={!allFilled}
+        onReset={onReset}
       />
     </div>
   );

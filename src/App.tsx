@@ -13,6 +13,8 @@ function App() {
     dispatch({ type: 'SET_STEP', payload: { step } });
   };
 
+  const handleReset = () => dispatch({ type: 'RESET_GAME' });
+
   const renderStep = () => {
     switch (state.currentStep) {
       case 1:
@@ -30,6 +32,7 @@ function App() {
             dispatch={dispatch}
             onNext={() => setStep(3)}
             onBack={() => setStep(1)}
+            onReset={handleReset}
           />
         );
       case 3:
@@ -39,6 +42,7 @@ function App() {
             dispatch={dispatch}
             onNext={() => setStep(4)}
             onBack={() => setStep(2)}
+            onReset={handleReset}
           />
         );
       case 4:
@@ -48,6 +52,7 @@ function App() {
             dispatch={dispatch}
             onBack={() => setStep(3)}
             onNewGame={() => dispatch({ type: 'RESET_GAME' })}
+            onReset={handleReset}
           />
         );
     }
