@@ -15,9 +15,9 @@ A calculator for settling up after home poker games. Enter each player's buy-ins
 
 Pick a mode on the Results screen after everyone has cashed out. You can switch between modes freely to compare.
 
-**Banker Mode** -- One player is designated as the banker. All winners receive their payout directly from the banker via Zelle. Tap "Set Banker" next to any player's name on the Results screen to assign them.
+**Banker Mode** -- One player is designated as the banker. All winners receive their payout directly from the banker. Tap "Set Banker" next to any player's name on the Results screen to assign them.
 
-**Simplified Payments** -- No banker needed. The app calculates the fewest possible peer-to-peer Zelle transfers to settle all debts, using a greedy algorithm that matches the biggest debtor to the biggest creditor each round.
+**Simplified Payments** -- No banker needed. The app calculates the fewest possible peer-to-peer transfers to settle all debts, using a greedy algorithm that matches the biggest debtor to the biggest creditor each round.
 
 Both modes show individual copy buttons per transaction plus a "Copy All" button to copy every payment as line-by-line text.
 
