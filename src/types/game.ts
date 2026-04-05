@@ -10,6 +10,7 @@ export interface GameState {
   currentStep: 1 | 2 | 3 | 4;
   mode: 'banker' | 'simplified' | null;
   players: Player[];
+  paidPlayerIds: string[];
   createdAt: string;
 }
 

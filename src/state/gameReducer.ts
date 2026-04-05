@@ -3,6 +3,7 @@ import { initialState } from './initialState';
 
 export type GameAction =
   | { type: 'SET_MODE'; payload: { mode: 'banker' | 'simplified' } }
+  | { type: 'TOGGLE_PAID'; payload: { id: string } }
   | { type: 'ADD_PLAYER'; payload: { name: string; buyIn: number } }
   | { type: 'REMOVE_PLAYER'; payload: { id: string } }
   | { type: 'SET_BANKER'; payload: { id: string } }
@@ -18,6 +19,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'SET_MODE': {
       return { ...state, mode: action.payload.mode };
+    }
+
+    case 'TOGGLE_PAID': {
+      const { id } = action.payload;
+      const already = state.paidPlayerIds.includes(id);
+      return {
+        ...state,
+        paidPlayerIds: already
+          ? state.paidPlayerIds.filter((pid) => pid !== id)
+          : [...state.paidPlayerIds, id],
+      };
     }
 
     case 'ADD_PLAYER': {
